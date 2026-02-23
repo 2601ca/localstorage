@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bloco de Tarefas</title>
+  <style>
+    :root {
+      --bg:        #f8f9fa;
+      --papel:     #fffef7;
+      --borda:     #e2d9c2;
+      --texto:     #2d2d2d;
+      --texto-frio:#6b7280;
+      --primary:   #3b82f6;
+      --primary-d: #2563eb;
+      --success:   #10b981;
+      --success-d: #059669;
+      --danger:    #ef4444;
+      --danger-d:  #dc2626;
+      --shadow:    0 8px 24px rgba(0,0,0,0.08);
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+      --radius:    12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: var(--texto);
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: min(100%, 480px);
+      background: var(--papel);
+      border: 1px solid var(--borda);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 28px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 28px,
+        rgba(180,140,90,0.07) 28px,
+        rgba(180,140,90,0.07) 29px
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.8rem;
+      text-align: center;
+      color: #1e293b;
+      position: relative;
+      z-index: 1;
+    }
+
+    .subtitle {
+      margin: 0 0 24px;
+      text-align: center;
+      color: var(--texto-frio);
+      font-size: 0.98rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 14px 16px;
+      font-size: 1.05rem;
+      border: 1px solid #d1d5db;
+      border-radius: var(--radius);
+      background: #fff;
+      transition: all 0.2s;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.15);
+    }
+
+    .btn-add {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      width: 54px;
+      height: 54px;
+      font-size: 1.6rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: grid;
+      place-items: center;
+      line-height: 1;
+    }
+
+    .btn-add:hover { background: var(--primary-d); transform: scale(1.05); }
+
+    .status {
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--texto-frio);
+      margin: 0 0 16px;
+      font-weight: 500;
+      position: relative;
+      z-index: 1;
+    }
+
+    .status strong { color: var(--texto); }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+      max-height: 55vh;
+      overflow-y: auto;
+      padding-right: 4px;
+      position: relative;
+      z-index: 1;
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid #e5e7eb;
+      border-radius: var(--radius);
+      transition: all 0.18s;
+      backdrop-filter: blur(4px);
+    }
+
+    li:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+
+    .tarefa-texto {
+      flex: 1;
+      font-size: 1.05rem;
+      word-break: break-word;
+      line-height: 1.4;
+    }
+
+    .concluida .tarefa-texto {
+      color: var(--texto-frio);
+      text-decoration: line-through;
+      text-decoration-thickness: 2px;
+      text-decoration-color: var(--success);
+    }
+
+    .botoes {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-acao {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: grid;
+      place-items: center;
+    }
+
+    .btn-concluir   { background: var(--success);   color: white; }
+    .btn-concluir:hover { background: var(--success-d); transform: scale(1.08); }
+    .btn-excluir    { background: var(--danger);    color: white; }
+    .btn-excluir:hover  { background: var(--danger-d);  transform: scale(1.08); }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--texto-frio);
+      font-size: 1.1rem;
+      border: 2px dashed #cbd5e1;
+      border-radius: 16px;
+      background: rgba(248,249,250,0.6);
+    }
+
+    .empty-state::before {
+      content: "📝";
+      display: block;
+      font-size: 3.2rem;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 480px) {
+      .container { padding: 20px 16px; }
+      .input-group { flex-direction: column; }
+      .btn-add { width: 100%; height: 52px; font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<main class="container">
+  <h1>Bloco de Tarefas</h1>
+  <p class="subtitle">Anote, marque, organize.</p>
+
+  <div class="input-group">
+    <input type="text" id="novaTarefa" placeholder="O que você precisa fazer?" maxlength="140" autocomplete="off" />
+    <button class="btn-add" id="btnAdicionar" title="Adicionar tarefa">+</button>
+  </div>
+
+  <div class="status" id="status">0 tarefas • 0 concluídas</div>
+
+  <ul id="lista"></ul>
+</main>
+
+<script>
+const STORAGE_KEY = "minhas-tarefas-v2";
+let tarefas = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+function salvar() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tarefas));
+}
+
+function atualizarStatus() {
+  const concluidas = tarefas.filter(t => t.concluida).length;
+  const total = tarefas.length;
+  document.getElementById("status").innerHTML =
+    total === 0
+      ? "Nenhuma tarefa ainda"
+      : `${total} tarefa${total !== 1 ? 's' : ''} • ${concluidas} concluída${concluidas !== 1 ? 's' : ''}`;
+}
+
+function renderizar() {
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  if (tarefas.length === 0) {
+    const li = document.createElement("li");
+    li.className = "empty-state";
+    li.innerHTML = "Comece adicionando uma tarefa acima!";
+    lista.appendChild(li);
+    atualizarStatus();
+    return;
+  }
+
+  tarefas.forEach((t, i) => {
+    const li = document.createElement("li");
+    if (t.concluida) li.classList.add("concluida");
+
+    const span = document.createElement("span");
+    span.className = "tarefa-texto";
+    span.textContent = t.texto;
+
+    const divBotoes = document.createElement("div");
+    divBotoes.className = "botoes";
+
+    const btnCheck = document.createElement("button");
+    btnCheck.className = "btn-acao btn-concluir";
+    btnCheck.textContent = t.concluida ? "↺" : "✓";
+    btnCheck.title = t.concluida ? "Reabrir tarefa" : "Concluir tarefa";
+    btnCheck.onclick = () => {
+      tarefas[i].concluida = !tarefas[i].concluida;
+      salvar();
+      renderizar();
+    };
+
+    const btnDel = document.createElement("button");
+    btnDel.className = "btn-acao btn-excluir";
+    btnDel.textContent = "×";
+    btnDel.title = "Excluir tarefa";
+    btnDel.onclick = () => {
+      if (confirm("Excluir esta tarefa?")) {
+        tarefas.splice(i, 1);
+        salvar();
+        renderizar();
+      }
+    };
+
+    divBotoes.append(btnCheck, btnDel);
+    li.append(span, divBotoes);
+    lista.appendChild(li);
+  });
+
+  atualizarStatus();
+}
+
+function adicionar() {
+  const input = document.getElementById("novaTarefa");
+  const texto = input.value.trim();
+  if (!texto) return input.focus();
+
+  tarefas.unshift({ texto, concluida: false }); // adiciona no início
+  input.value = "";
+  salvar();
+  renderizar();
+  input.focus();
+}
+
+document.getElementById("btnAdicionar").onclick = adicionar;
+document.getElementById("novaTarefa").onkeydown = e => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    adicionar();
+  }
+};
+
+renderizar();
+</script>
+
+</body>
+</html>
