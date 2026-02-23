@@ -1,178 +1,244 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Sistema de Tarefas</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bloco de Tarefas</title>
+  <style>
+    :root {
+      --bg:        #f8f9fa;
+      --papel:     #fffef7;
+      --borda:     #e2d9c2;
+      --texto:     #2d2d2d;
+      --texto-frio:#6b7280;
+      --primary:   #3b82f6;
+      --primary-d: #2563eb;
+      --success:   #10b981;
+      --success-d: #059669;
+      --danger:    #ef4444;
+      --danger-d:  #dc2626;
+      --shadow:    0 8px 24px rgba(0,0,0,0.08);
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+      --radius:    12px;
+    }
 
-<style>
-:root {
-  --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-  --surface: #ffffff;
-  --surface-soft: #f1f5f9;
-  --text: #1e293b;
-  --text-soft: #64748b;
-  --primary: #2563eb;
-  --danger: #dc2626;
-  --success: #16a34a;
-  --radius: 14px;
-  --shadow: 0 15px 40px rgba(0,0,0,0.2);
-}
+    * { box-sizing: border-box; }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --surface: #1e293b;
-    --surface-soft: #334155;
-    --text: #f1f5f9;
-    --text-soft: #94a3b8;
-  }
-}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: var(--texto);
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
 
-* { box-sizing: border-box; }
+    .container {
+      width: min(100%, 480px);
+      background: var(--papel);
+      border: 1px solid var(--borda);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 28px 24px;
+      position: relative;
+      overflow: hidden;
+    }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  font-family: "Segoe UI", sans-serif;
-  background: var(--bg-gradient);
-  padding: 20px;
-}
+    .container::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 28px,
+        rgba(180,140,90,0.07) 28px,
+        rgba(180,140,90,0.07) 29px
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
 
-.container {
-  width: min(100%, 500px);
-  background: var(--surface);
-  border-radius: 20px;
-  box-shadow: var(--shadow);
-  padding: 24px;
-  animation: fadeIn 0.4s ease;
-}
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.8rem;
+      text-align: center;
+      color: #1e293b;
+      position: relative;
+      z-index: 1;
+    }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+    .subtitle {
+      margin: 0 0 24px;
+      text-align: center;
+      color: var(--texto-frio);
+      font-size: 0.98rem;
+      position: relative;
+      z-index: 1;
+    }
 
-h1 { text-align: center; margin: 0; }
-.subtitle { text-align: center; color: var(--text-soft); margin-bottom: 18px; }
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
 
-.input-group {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 14px;
-}
+    input[type="text"] {
+      flex: 1;
+      padding: 14px 16px;
+      font-size: 1.05rem;
+      border: 1px solid #d1d5db;
+      border-radius: var(--radius);
+      background: #fff;
+      transition: all 0.2s;
+    }
 
-input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #cbd5e1;
-}
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.15);
+    }
 
-button {
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  color: white;
-  padding: 8px 12px;
-  font-weight: bold;
-  transition: 0.2s;
-}
+    .btn-add {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      width: 54px;
+      height: 54px;
+      font-size: 1.6rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: grid;
+      place-items: center;
+      line-height: 1;
+    }
 
-.btn-add { background: var(--primary); }
-.btn-add:hover { opacity: 0.9; }
+    .btn-add:hover { background: var(--primary-d); transform: scale(1.05); }
 
-.status-bar {
-  font-size: 0.85rem;
-  margin-bottom: 10px;
-  color: var(--text-soft);
-}
+    .status {
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--texto-frio);
+      margin: 0 0 16px;
+      font-weight: 500;
+      position: relative;
+      z-index: 1;
+    }
 
-.filters {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
+    .status strong { color: var(--texto); }
 
-.filters button {
-  background: var(--surface-soft);
-  color: var(--text);
-  flex: 1;
-  margin: 0 3px;
-}
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+      max-height: 55vh;
+      overflow-y: auto;
+      padding-right: 4px;
+      position: relative;
+      z-index: 1;
+    }
 
-.filters button.active {
-  background: var(--primary);
-  color: white;
-}
+    li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid #e5e7eb;
+      border-radius: var(--radius);
+      transition: all 0.18s;
+      backdrop-filter: blur(4px);
+    }
 
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 8px;
-  max-height: 50vh;
-  overflow: auto;
-}
+    li:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
 
-li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--surface-soft);
-  padding: 10px;
-  border-radius: 12px;
-  animation: fadeIn 0.3s ease;
-}
+    .tarefa-texto {
+      flex: 1;
+      font-size: 1.05rem;
+      word-break: break-word;
+      line-height: 1.4;
+    }
 
-.concluida {
-  text-decoration: line-through;
-  color: var(--text-soft);
-}
+    .concluida .tarefa-texto {
+      color: var(--texto-frio);
+      text-decoration: line-through;
+      text-decoration-thickness: 2px;
+      text-decoration-color: var(--success);
+    }
 
-.botoes button {
-  margin-left: 5px;
-}
+    .botoes {
+      display: flex;
+      gap: 8px;
+    }
 
-.btn-success { background: var(--success); }
-.btn-danger { background: var(--danger); }
+    .btn-acao {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: grid;
+      place-items: center;
+    }
 
-.empty {
-  text-align: center;
-  padding: 15px;
-  color: var(--text-soft);
-}
-</style>
+    .btn-concluir   { background: var(--success);   color: white; }
+    .btn-concluir:hover { background: var(--success-d); transform: scale(1.08); }
+    .btn-excluir    { background: var(--danger);    color: white; }
+    .btn-excluir:hover  { background: var(--danger-d);  transform: scale(1.08); }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--texto-frio);
+      font-size: 1.1rem;
+      border: 2px dashed #cbd5e1;
+      border-radius: 16px;
+      background: rgba(248,249,250,0.6);
+    }
+
+    .empty-state::before {
+      content: "📝";
+      display: block;
+      font-size: 3.2rem;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 480px) {
+      .container { padding: 20px 16px; }
+      .input-group { flex-direction: column; }
+      .btn-add { width: 100%; height: 52px; font-size: 1.4rem; }
+    }
+  </style>
 </head>
-
 <body>
 
 <main class="container">
-<h1>Minhas Tarefas</h1>
-<p class="subtitle">Organize seu dia com praticidade</p>
+  <h1>Bloco de Tarefas</h1>
+  <p class="subtitle">Anote, marque, organize.</p>
 
-<div class="input-group">
-  <input type="text" id="novaTarefa" placeholder="Digite uma tarefa" />
-  <button class="btn-add" onclick="adicionarTarefa()">Adicionar</button>
-</div>
+  <div class="input-group">
+    <input type="text" id="novaTarefa" placeholder="O que você precisa fazer?" maxlength="140" autocomplete="off" />
+    <button class="btn-add" id="btnAdicionar" title="Adicionar tarefa">+</button>
+  </div>
 
-<div class="status-bar" id="statusTarefas"></div>
+  <div class="status" id="status">0 tarefas • 0 concluídas</div>
 
-<div class="filters">
-  <button onclick="setFiltro('todas')" class="active">Todas</button>
-  <button onclick="setFiltro('pendentes')">Pendentes</button>
-  <button onclick="setFiltro('concluidas')">Concluídas</button>
-</div>
-
-<ul id="lista"></ul>
+  <ul id="lista"></ul>
 </main>
 
 <script>
-const STORAGE_KEY = "tarefas";
+const STORAGE_KEY = "minhas-tarefas-v2";
 let tarefas = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-let filtroAtual = "todas";
 
 function salvar() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tarefas));
@@ -180,98 +246,86 @@ function salvar() {
 
 function atualizarStatus() {
   const concluidas = tarefas.filter(t => t.concluida).length;
-  document.getElementById("statusTarefas").textContent =
-    `${concluidas} concluídas • ${tarefas.length - concluidas} pendentes`;
-}
-
-function setFiltro(tipo) {
-  filtroAtual = tipo;
-  document.querySelectorAll(".filters button")
-    .forEach(btn => btn.classList.remove("active"));
-  event.target.classList.add("active");
-  renderizar();
+  const total = tarefas.length;
+  document.getElementById("status").innerHTML =
+    total === 0
+      ? "Nenhuma tarefa ainda"
+      : `${total} tarefa${total !== 1 ? 's' : ''} • ${concluidas} concluída${concluidas !== 1 ? 's' : ''}`;
 }
 
 function renderizar() {
   const lista = document.getElementById("lista");
   lista.innerHTML = "";
 
-  let tarefasFiltradas = tarefas.filter(t => {
-    if (filtroAtual === "pendentes") return !t.concluida;
-    if (filtroAtual === "concluidas") return t.concluida;
-    return true;
-  });
-
-  if (tarefasFiltradas.length === 0) {
-    lista.innerHTML = `<li class="empty">Nenhuma tarefa encontrada</li>`;
+  if (tarefas.length === 0) {
+    const li = document.createElement("li");
+    li.className = "empty-state";
+    li.innerHTML = "Comece adicionando uma tarefa acima!";
+    lista.appendChild(li);
     atualizarStatus();
     return;
   }
 
-  tarefasFiltradas.forEach((tarefa, index) => {
+  tarefas.forEach((t, i) => {
     const li = document.createElement("li");
+    if (t.concluida) li.classList.add("concluida");
 
     const span = document.createElement("span");
-    span.textContent = tarefa.texto;
-    if (tarefa.concluida) span.classList.add("concluida");
+    span.className = "tarefa-texto";
+    span.textContent = t.texto;
 
-    const div = document.createElement("div");
-    div.className = "botoes";
+    const divBotoes = document.createElement("div");
+    divBotoes.className = "botoes";
 
-    const btnConcluir = document.createElement("button");
-    btnConcluir.textContent = "✓";
-    btnConcluir.className = "btn-success";
-    btnConcluir.onclick = () => {
-      tarefa.concluida = !tarefa.concluida;
+    const btnCheck = document.createElement("button");
+    btnCheck.className = "btn-acao btn-concluir";
+    btnCheck.textContent = t.concluida ? "↺" : "✓";
+    btnCheck.title = t.concluida ? "Reabrir tarefa" : "Concluir tarefa";
+    btnCheck.onclick = () => {
+      tarefas[i].concluida = !tarefas[i].concluida;
       salvar();
       renderizar();
     };
 
-    const btnEditar = document.createElement("button");
-    btnEditar.textContent = "✎";
-    btnEditar.onclick = () => {
-      const novoTexto = prompt("Editar tarefa:", tarefa.texto);
-      if (novoTexto) {
-        tarefa.texto = novoTexto;
+    const btnDel = document.createElement("button");
+    btnDel.className = "btn-acao btn-excluir";
+    btnDel.textContent = "×";
+    btnDel.title = "Excluir tarefa";
+    btnDel.onclick = () => {
+      if (confirm("Excluir esta tarefa?")) {
+        tarefas.splice(i, 1);
         salvar();
         renderizar();
       }
     };
 
-    const btnExcluir = document.createElement("button");
-    btnExcluir.textContent = "✕";
-    btnExcluir.className = "btn-danger";
-    btnExcluir.onclick = () => {
-      if (confirm("Deseja excluir esta tarefa?")) {
-        tarefas = tarefas.filter(t => t !== tarefa);
-        salvar();
-        renderizar();
-      }
-    };
-
-    div.append(btnConcluir, btnEditar, btnExcluir);
-    li.append(span, div);
+    divBotoes.append(btnCheck, btnDel);
+    li.append(span, divBotoes);
     lista.appendChild(li);
   });
 
   atualizarStatus();
 }
 
-function adicionarTarefa() {
+function adicionar() {
   const input = document.getElementById("novaTarefa");
   const texto = input.value.trim();
-  if (!texto) return;
+  if (!texto) return input.focus();
 
-  tarefas.push({ texto, concluida: false });
+  tarefas.unshift({ texto, concluida: false }); // adiciona no início
   input.value = "";
   salvar();
   renderizar();
+  input.focus();
 }
 
-document.getElementById("novaTarefa")
-  .addEventListener("keydown", e => {
-    if (e.key === "Enter") adicionarTarefa();
-  });
+document.getElementById("btnAdicionar").onclick = adicionar;
+document.getElementById("novaTarefa").onkeydown = e => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    adicionar();
+  }
+};
 
 renderizar();
 </script>
