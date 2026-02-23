@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sistema de Tarefas</title>
+
+<style>
+:root {
+  --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  --surface: #ffffff;
+  --surface-soft: #f1f5f9;
+  --text: #1e293b;
+  --text-soft: #64748b;
+  --primary: #2563eb;
+  --danger: #dc2626;
+  --success: #16a34a;
+  --radius: 14px;
+  --shadow: 0 15px 40px rgba(0,0,0,0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: #1e293b;
+    --surface-soft: #334155;
+    --text: #f1f5f9;
+    --text-soft: #94a3b8;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  font-family: "Segoe UI", sans-serif;
+  background: var(--bg-gradient);
+  padding: 20px;
+}
+
+.container {
+  width: min(100%, 500px);
+  background: var(--surface);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  padding: 24px;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+h1 { text-align: center; margin: 0; }
+.subtitle { text-align: center; color: var(--text-soft); margin-bottom: 18px; }
+
+.input-group {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+}
+
+button {
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: white;
+  padding: 8px 12px;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.btn-add { background: var(--primary); }
+.btn-add:hover { opacity: 0.9; }
+
+.status-bar {
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+  color: var(--text-soft);
+}
+
+.filters {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.filters button {
+  background: var(--surface-soft);
+  color: var(--text);
+  flex: 1;
+  margin: 0 3px;
+}
+
+.filters button.active {
+  background: var(--primary);
+  color: white;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+  max-height: 50vh;
+  overflow: auto;
+}
+
+li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--surface-soft);
+  padding: 10px;
+  border-radius: 12px;
+  animation: fadeIn 0.3s ease;
+}
+
+.concluida {
+  text-decoration: line-through;
+  color: var(--text-soft);
+}
+
+.botoes button {
+  margin-left: 5px;
+}
+
+.btn-success { background: var(--success); }
+.btn-danger { background: var(--danger); }
+
+.empty {
+  text-align: center;
+  padding: 15px;
+  color: var(--text-soft);
+}
+</style>
+</head>
+
+<body>
+
+<main class="container">
+<h1>Minhas Tarefas</h1>
+<p class="subtitle">Organize seu dia com praticidade</p>
+
+<div class="input-group">
+  <input type="text" id="novaTarefa" placeholder="Digite uma tarefa" />
+  <button class="btn-add" onclick="adicionarTarefa()">Adicionar</button>
+</div>
+
+<div class="status-bar" id="statusTarefas"></div>
+
+<div class="filters">
+  <button onclick="setFiltro('todas')" class="active">Todas</button>
+  <button onclick="setFiltro('pendentes')">Pendentes</button>
+  <button onclick="setFiltro('concluidas')">Concluídas</button>
+</div>
+
+<ul id="lista"></ul>
+</main>
+
+<script>
+const STORAGE_KEY = "tarefas";
+let tarefas = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+let filtroAtual = "todas";
+
+function salvar() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tarefas));
+}
+
+function atualizarStatus() {
+  const concluidas = tarefas.filter(t => t.concluida).length;
+  document.getElementById("statusTarefas").textContent =
+    `${concluidas} concluídas • ${tarefas.length - concluidas} pendentes`;
+}
+
+function setFiltro(tipo) {
+  filtroAtual = tipo;
+  document.querySelectorAll(".filters button")
+    .forEach(btn => btn.classList.remove("active"));
+  event.target.classList.add("active");
+  renderizar();
+}
+
+function renderizar() {
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  let tarefasFiltradas = tarefas.filter(t => {
+    if (filtroAtual === "pendentes") return !t.concluida;
+    if (filtroAtual === "concluidas") return t.concluida;
+    return true;
+  });
+
+  if (tarefasFiltradas.length === 0) {
+    lista.innerHTML = `<li class="empty">Nenhuma tarefa encontrada</li>`;
+    atualizarStatus();
+    return;
+  }
+
+  tarefasFiltradas.forEach((tarefa, index) => {
+    const li = document.createElement("li");
+
+    const span = document.createElement("span");
+    span.textContent = tarefa.texto;
+    if (tarefa.concluida) span.classList.add("concluida");
+
+    const div = document.createElement("div");
+    div.className = "botoes";
+
+    const btnConcluir = document.createElement("button");
+    btnConcluir.textContent = "✓";
+    btnConcluir.className = "btn-success";
+    btnConcluir.onclick = () => {
+      tarefa.concluida = !tarefa.concluida;
+      salvar();
+      renderizar();
+    };
+
+    const btnEditar = document.createElement("button");
+    btnEditar.textContent = "✎";
+    btnEditar.onclick = () => {
+      const novoTexto = prompt("Editar tarefa:", tarefa.texto);
+      if (novoTexto) {
+        tarefa.texto = novoTexto;
+        salvar();
+        renderizar();
+      }
+    };
+
+    const btnExcluir = document.createElement("button");
+    btnExcluir.textContent = "✕";
+    btnExcluir.className = "btn-danger";
+    btnExcluir.onclick = () => {
+      if (confirm("Deseja excluir esta tarefa?")) {
+        tarefas = tarefas.filter(t => t !== tarefa);
+        salvar();
+        renderizar();
+      }
+    };
+
+    div.append(btnConcluir, btnEditar, btnExcluir);
+    li.append(span, div);
+    lista.appendChild(li);
+  });
+
+  atualizarStatus();
+}
+
+function adicionarTarefa() {
+  const input = document.getElementById("novaTarefa");
+  const texto = input.value.trim();
+  if (!texto) return;
+
+  tarefas.push({ texto, concluida: false });
+  input.value = "";
+  salvar();
+  renderizar();
+}
+
+document.getElementById("novaTarefa")
+  .addEventListener("keydown", e => {
+    if (e.key === "Enter") adicionarTarefa();
+  });
+
+renderizar();
+</script>
+
+</body>
+</html>
