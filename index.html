@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bloco de Tarefas</title>
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<main class="container">
+  <h1>Bloco de Tarefas</h1>
+  <p class="subtitle">Anote, marque, organize.</p>
+
+  <div class="input-group">
+    <input 
+      type="text" 
+      id="novaTarefa" 
+      placeholder="O que você precisa fazer?" 
+      maxlength="140" 
+      autocomplete="off" 
+    />
+    <button class="btn-add" id="btnAdicionar" title="Adicionar tarefa">+</button>
+  </div>
+
+  <div class="status" id="status">0 tarefas • 0 concluídas</div>
+
+  <ul id="lista"></ul>
+</main>
+
+<!-- JavaScript -->
+<script src="script.js"></script>
+
+</body>
+</html>
