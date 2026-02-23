@@ -1,5 +1,4 @@
 # localstorage
-# Sistema de Tarefas
 
 Aplicação web simples para gerenciamento de tarefas com armazenamento local.
 
@@ -15,9 +14,6 @@ Aplicação web simples para gerenciamento de tarefas com armazenamento local.
 - HTML5
 - CSS3
 - JavaScript
-
-## 📸 Preview
-(coloque print aqui)
 
 ## 💡 Objetivo
 Projeto criado para praticar manipulação de DOM e armazenamento local.
